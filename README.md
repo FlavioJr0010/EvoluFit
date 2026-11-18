@@ -156,7 +156,8 @@ docker-compose.yml       # banco Postgres local (porta 55432)
 | `npm run start` | Servidor de produção (após o build) |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Verificação de tipos |
-| `npm test` / `npm run test:watch` | Testes (Vitest) |
+| `npm test` / `npm run test:watch` | Testes unitários (Vitest) |
+| `npm run test:db` | Testes de integração do banco: RLS e regras (requer `db:up` + `db:migrate`) |
 | `npm run db:*` | Banco local (ver [Comandos](#comandos)) |
 
 ## Testes
@@ -185,7 +186,7 @@ ORMs como o Prisma conectam com o usuário `postgres`, que **ignora o RLS**. O i
 | Etapa | Situação |
 |---|---|
 | 1. Next.js, TypeScript, Supabase, variáveis de ambiente e autenticação | ✅ Concluída |
-| 2. Migrations, tipos TypeScript e RLS | ⏳ Próxima |
+| 2. Migrations, tipos TypeScript e RLS | ✅ Concluída |
 | 3. Registro diário de peso e água + gráfico de peso | Pendente |
 | 4. Cadastro de alimentos e cálculo proporcional | Pendente |
 | 5. Refeições do dia e totais nutricionais | Pendente |
