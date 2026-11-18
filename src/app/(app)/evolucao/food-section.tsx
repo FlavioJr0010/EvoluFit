@@ -13,7 +13,7 @@ import { sumNutrition } from "@/lib/nutrition/calc";
 import { MEAL_TYPES } from "@/lib/nutrition/meals";
 import { NUTRIENTS, type NutrientKey } from "@/lib/nutrition/types";
 
-import { Stat } from "./weight-section";
+import { Stat } from "@/components/app/stat";
 
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 const TABLE_NUTRIENTS: NutrientKey[] = ["carbs_g", "protein_g", "fat_g", "fiber_g", "sodium_mg"];

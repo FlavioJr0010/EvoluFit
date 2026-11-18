@@ -190,6 +190,6 @@ ORMs como o Prisma conectam com o usuário `postgres`, que **ignora o RLS**. O i
 | 3. Registro diário de peso e água + gráfico de peso | ✅ Concluída |
 | 4. Cadastro de alimentos e cálculo proporcional | ✅ Concluída |
 | 5. Refeições do dia e totais nutricionais | ✅ Concluída |
-| 6. Exercícios, treinos e séries | Pendente |
+| 6. Exercícios, treinos e séries | ✅ Concluída |
 | 7. Relatórios e gráficos de evolução de treino | Pendente |
 | 8. Revisão mobile, validações, mensagens de erro e estados vazios | Pendente |

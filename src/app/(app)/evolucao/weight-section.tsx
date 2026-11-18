@@ -1,5 +1,6 @@
 import { Scale } from "lucide-react";
 
+import { Stat } from "@/components/app/stat";
 import { TimeChart } from "@/components/charts/time-chart";
 import { EmptyState } from "@/components/app/empty-state";
 import { LinkButton } from "@/components/app/link-button";
@@ -107,15 +108,5 @@ export function WaterSection({ checkins, range }: { checkins: Checkin[]; range: 
         )}
       </CardContent>
     </Card>
-  );
-}
-
-export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
-  return (
-    <div className="rounded-lg bg-muted/50 p-3">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-lg font-semibold tabular-nums">{value}</dd>
-      {hint ? <dd className="text-xs text-muted-foreground">{hint}</dd> : null}
-    </div>
   );
 }
