@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCheckin, getLatestWeight } from "@/lib/data/checkins";
 import { getToday } from "@/lib/data/context";
+import { listMealsByDate } from "@/lib/data/meals";
+import { sumNutrition } from "@/lib/nutrition/calc";
+import { NutritionLine } from "@/components/nutrition/nutrition-facts";
 import { formatDate, formatDateLong } from "@/lib/dates";
 import { formatKg } from "@/lib/format";
 
@@ -32,7 +35,8 @@ function DashboardSkeleton() {
 
 async function Dashboard() {
   const today = await getToday();
-  const [checkin, latestWeight] = await Promise.all([getCheckin(today), getLatestWeight()]);
+  const [checkin, latestWeight, meals] = await Promise.all([getCheckin(today), getLatestWeight(), listMealsByDate(today)]);
+  const dayTotal = sumNutrition(meals.map((m) => m.totals));
 
   return (
     <>
@@ -64,6 +68,25 @@ async function Dashboard() {
             )}
             <Link href="/acompanhamento" className="mt-2 text-sm font-medium underline-offset-4 hover:underline">
               {checkin?.weight_kg != null ? "Editar registro de hoje" : "Registrar peso de hoje"}
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Alimentação</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-1">
+            {meals.length ? (
+              <>
+                <NutritionLine nutrition={dayTotal} />
+                <span className="text-sm text-muted-foreground">{meals.length} refeição(ões) registrada(s) hoje</span>
+              </>
+            ) : (
+              <span className="text-sm text-muted-foreground">Nenhuma refeição registrada hoje.</span>
+            )}
+            <Link href="/refeicoes" className="mt-2 text-sm font-medium underline-offset-4 hover:underline">
+              {meals.length ? "Ver refeições do dia" : "Registrar refeição"}
             </Link>
           </CardContent>
         </Card>

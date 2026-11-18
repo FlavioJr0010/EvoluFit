@@ -21,6 +21,8 @@ export type ChartSeries = {
   kind: "line" | "bar";
   color: string;
   dashed?: boolean;
+  /** Barras com o mesmo stackId são empilhadas. */
+  stackId?: string;
 };
 
 export type ChartPoint = { date: string } & Record<string, number | null | string>;
@@ -81,7 +83,15 @@ export function TimeChart({
           {series.length > 1 ? <Legend wrapperStyle={{ fontSize: 12 }} /> : null}
           {series.map((s) =>
             s.kind === "bar" ? (
-              <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar
+                key={s.key}
+                dataKey={s.key}
+                name={s.label}
+                fill={s.color}
+                stackId={s.stackId}
+                radius={s.stackId ? undefined : [4, 4, 0, 0]}
+                maxBarSize={28}
+              />
             ) : (
               <Line
                 key={s.key}

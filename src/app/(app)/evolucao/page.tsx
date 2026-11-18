@@ -5,11 +5,13 @@ import { PeriodSelector } from "@/components/charts/period-selector";
 import { PageHeader } from "@/components/app/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listCheckins } from "@/lib/data/checkins";
+import { listMealsInRange } from "@/lib/data/meals";
 import { getToday } from "@/lib/data/context";
 import { param } from "@/lib/data/search-params";
 import { addDays } from "@/lib/dates";
 import { resolvePeriod } from "@/lib/period";
 
+import { FoodSection } from "./food-section";
 import { WaterSection, WeightSection } from "./weight-section";
 
 export const metadata: Metadata = { title: "Evolução" };
@@ -33,7 +35,10 @@ async function EvolutionContent({ searchParams }: Pick<PageProps<"/evolucao">, "
     today,
   );
   // 6 dias antes do período para a janela da média móvel
-  const checkins = await listCheckins({ from: addDays(period.range.from, -6), to: period.range.to });
+  const [checkins, meals] = await Promise.all([
+    listCheckins({ from: addDays(period.range.from, -6), to: period.range.to }),
+    listMealsInRange(period.range),
+  ]);
 
   return (
     <>
@@ -41,6 +46,7 @@ async function EvolutionContent({ searchParams }: Pick<PageProps<"/evolucao">, "
       <div className="flex flex-col gap-4">
         <WeightSection checkins={checkins} range={period.range} />
         <WaterSection checkins={checkins} range={period.range} />
+        <FoodSection meals={meals} range={period.range} />
       </div>
     </>
   );
