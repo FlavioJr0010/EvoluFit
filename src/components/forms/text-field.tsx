@@ -3,6 +3,7 @@ import type { ComponentProps } from "react";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
+
 type TextFieldProps = Omit<ComponentProps<"input">, "name" | "id"> & {
   name: string;
   label: string;
@@ -11,7 +12,7 @@ type TextFieldProps = Omit<ComponentProps<"input">, "name" | "id"> & {
 };
 
 /** Campo de formulário com label, descrição e erros acessíveis. */
-export function TextField({ name, label, description, errors, ...inputProps }: TextFieldProps) {
+export function TextField({ name, label, description, errors, className, ...inputProps }: TextFieldProps) {
   const id = `field-${name}`;
   const errorId = `${id}-error`;
   const descriptionId = `${id}-description`;
@@ -29,6 +30,7 @@ export function TextField({ name, label, description, errors, ...inputProps }: T
             .filter(Boolean)
             .join(" ") || undefined
         }
+        className={["h-10 md:h-9", className].filter(Boolean).join(" ")}
         {...inputProps}
       />
       {description ? <FieldDescription id={descriptionId}>{description}</FieldDescription> : null}

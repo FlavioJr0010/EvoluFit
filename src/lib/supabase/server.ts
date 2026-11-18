@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 
 import { publicEnv } from "@/lib/env";
 import type { Database } from "@/lib/supabase/database.types";
@@ -12,6 +13,9 @@ import type { Database } from "@/lib/supabase/database.types";
  * consultas passam pelo RLS.
  */
 export async function createClient() {
+  // O client do Supabase lê o relógio (Date.now) ao iniciar a sessão; com
+  // Cache Components isso só pode acontecer no momento da requisição.
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(

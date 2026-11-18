@@ -187,7 +187,7 @@ ORMs como o Prisma conectam com o usuário `postgres`, que **ignora o RLS**. O i
 |---|---|
 | 1. Next.js, TypeScript, Supabase, variáveis de ambiente e autenticação | ✅ Concluída |
 | 2. Migrations, tipos TypeScript e RLS | ✅ Concluída |
-| 3. Registro diário de peso e água + gráfico de peso | Pendente |
+| 3. Registro diário de peso e água + gráfico de peso | ✅ Concluída |
 | 4. Cadastro de alimentos e cálculo proporcional | Pendente |
 | 5. Refeições do dia e totais nutricionais | Pendente |
 | 6. Exercícios, treinos e séries | Pendente |
