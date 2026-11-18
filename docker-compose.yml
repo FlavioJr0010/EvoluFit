@@ -1,0 +1,25 @@
+# Banco de desenvolvimento local do EvoluFit.
+# Usa a imagem Postgres do Supabase (mesma linha do projeto hospedado):
+# já inclui os roles anon/authenticated/service_role, o schema auth e
+# auth.uid(), necessários para validar migrations e políticas RLS.
+services:
+  db:
+    image: public.ecr.aws/supabase/postgres:17.12.0.000
+    container_name: evolufit-db
+    restart: unless-stopped
+    ports:
+      # Exposto apenas na máquina local.
+      - "127.0.0.1:${EVOLUFIT_DB_PORT:-55432}:5432"
+    environment:
+      POSTGRES_PASSWORD: ${EVOLUFIT_DB_PASSWORD:-postgres}
+      POSTGRES_DB: postgres
+    volumes:
+      - evolufit-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  evolufit-db-data:
