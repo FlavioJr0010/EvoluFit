@@ -28,3 +28,10 @@ describe("formatação pt-BR", () => {
     expect(formatNutrient(1234.4, "mg")).toBe("1.234 mg");
   });
 });
+
+describe("capitalizeFirst", () => {
+  it("só a primeira letra", async () => {
+    const { capitalizeFirst } = await import("./format");
+    expect(capitalizeFirst("quarta-feira, 18 de novembro")).toBe("Quarta-feira, 18 de novembro");
+  });
+});

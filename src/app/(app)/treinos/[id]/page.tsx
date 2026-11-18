@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getWorkout } from "@/lib/data/workouts";
 import { formatDateLong } from "@/lib/dates";
-import { formatNumber } from "@/lib/format";
+import { capitalizeFirst, formatNumber } from "@/lib/format";
 import { formatVolume } from "@/lib/training/format";
 import { muscleGroupLabel } from "@/lib/training/labels";
 import { exerciseStats, workoutVolume } from "@/lib/training/stats";
@@ -45,7 +45,7 @@ async function WorkoutDetail({ params }: Pick<PageProps<"/treinos/[id]">, "param
     <>
       <PageHeader
         title={workout.title}
-        description={<span className="capitalize">{formatDateLong(workout.date)}</span>}
+        description={capitalizeFirst(formatDateLong(workout.date))}
         backHref="/treinos"
         actions={
           <>

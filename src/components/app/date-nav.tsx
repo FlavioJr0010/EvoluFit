@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { addDays, formatDateLong, isDateString } from "@/lib/dates";
+import { capitalizeFirst } from "@/lib/format";
 
 /** Navegação por data via ?data=YYYY-MM-DD. */
 export function DateNav({ date, today }: { date: string; today: string }) {
@@ -31,8 +32,8 @@ export function DateNav({ date, today }: { date: string; today: string }) {
           onChange={(e) => go(e.target.value)}
           className="h-9 w-auto text-center"
         />
-        <span className="mt-1 text-xs capitalize text-muted-foreground">
-          {date === today ? "Hoje" : formatDateLong(date)}
+        <span className="mt-1 text-xs text-muted-foreground">
+          {date === today ? "Hoje" : capitalizeFirst(formatDateLong(date))}
         </span>
       </div>
       <Button variant="outline" size="icon-lg" aria-label="Próximo dia" onClick={() => go(addDays(date, 1))}>

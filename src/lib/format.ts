@@ -45,3 +45,8 @@ export function formatNutrient(value: number | null, unit: "g" | "mg", partial =
   const text = `${formatNumber(value, unit === "mg" ? 0 : 1)} ${unit}`;
   return partial ? `≥ ${text}` : text;
 }
+
+/** Primeira letra maiúscula (o `text-transform: capitalize` capitaliza todas as palavras). */
+export function capitalizeFirst(text: string): string {
+  return text.charAt(0).toLocaleUpperCase("pt-BR") + text.slice(1);
+}

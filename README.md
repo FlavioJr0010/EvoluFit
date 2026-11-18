@@ -99,7 +99,16 @@ Uso pessoal, conta única:
 | `/esqueci-senha` | Público | Solicita o link de redefinição (resposta genérica, não revela se o e-mail existe) |
 | `/auth/confirm` | Público | Destino do link do e-mail; valida o `token_hash` (ou `code` PKCE) e cria a sessão |
 | `/redefinir-senha` | Autenticado | Define a nova senha após o link de recuperação |
-| `/` | Autenticado | Dashboard (resumo do dia) |
+| `/` | Autenticado | Hoje: água (+250/+500 ml), peso, calorias do dia e último treino |
+| `/acompanhamento` | Autenticado | Peso, água e observação por data (um registro por dia) |
+| `/alimentos` | Autenticado | Alimentos: busca, cadastro, edição, calculadora proporcional, arquivar/excluir |
+| `/preparacoes` | Autenticado | Receitas compostas por alimentos, com rendimento em porções |
+| `/refeicoes` | Autenticado | Refeições do dia, totais nutricionais e duplicação de outra data |
+| `/exercicios` | Autenticado | Catálogo de exercícios por grupo muscular |
+| `/treinos` | Autenticado | Histórico, registro, edição e repetição de treinos com séries |
+| `/evolucao` | Autenticado | Gráficos e relatórios de peso, água, alimentação e treinos por período |
+| `/evolucao/exercicio/[id]` | Autenticado | Maior carga, volume e repetições por sessão, com comparação de períodos |
+| `/perfil` | Autenticado | Nome e fuso horário (define o “hoje”) |
 
 ### Como a sessão é protegida
 
@@ -113,11 +122,17 @@ Uso pessoal, conta única:
 
 As configurações de `supabase/config.toml` valem apenas localmente. No painel do projeto remoto:
 
-1. **Authentication → Users → Add user**: criar a conta pessoal.
-2. **Authentication → Sign In / Providers**: desligar **Allow new users to sign up** e **Confirm email** (depois de criar a conta).
-3. **Authentication → URL Configuration**: definir **Site URL** (URL de produção na Vercel) e adicionar em **Redirect URLs** `http://localhost:3000/**` e a URL de produção com `/**`.
-4. **Authentication → Emails → Reset password**: usar o template de `supabase/templates/recovery.html` (link para `/auth/confirm` com `token_hash`).
-5. **Project Settings → API Keys**: se uma chave secreta tiver sido compartilhada fora do painel, criar uma nova e revogar a antiga.
+1. **Aplicar as migrations** (uma vez; o `link` pede a senha do banco de forma interativa e não a salva no projeto):
+   ```bash
+   npx supabase link --project-ref <project-ref>
+   npx supabase db push --remote
+   ```
+   Depois, `npx supabase gen types typescript --remote --schema public > src/lib/supabase/database.types.ts` confirma que os tipos batem com o remoto.
+2. **Authentication → Users → Add user**: criar a conta pessoal.
+3. **Authentication → Sign In / Providers**: desligar **Allow new users to sign up** e **Confirm email** (depois de criar a conta).
+4. **Authentication → URL Configuration**: definir **Site URL** (URL de produção na Vercel) e adicionar em **Redirect URLs** `http://localhost:3000/**` e a URL de produção com `/**`.
+5. **Authentication → Emails → Reset password**: usar o template de `supabase/templates/recovery.html` (link para `/auth/confirm` com `token_hash`).
+6. **Project Settings → API Keys**: se uma chave secreta tiver sido compartilhada fora do painel, criar uma nova e revogar a antiga.
 
 O SMTP padrão do Supabase tem limite baixo de envios por hora — suficiente para recuperação de senha em uso pessoal.
 
@@ -127,23 +142,30 @@ O SMTP padrão do Supabase tem limite baixo de envios por hora — suficiente pa
 src/
   app/
     (auth)/              # login, esqueci-senha, redefinir-senha + Server Actions de auth
-    (app)/               # área autenticada (layout com cabeçalho, dashboard)
+    (app)/               # área autenticada: hoje, acompanhamento, alimentos, preparacoes,
+                         # refeicoes, exercicios, treinos, evolucao, perfil (páginas + actions)
     auth/confirm/        # Route Handler dos links de e-mail
     layout.tsx           # layout raiz (pt-BR)
   components/
-    forms/               # TextField, FormMessage (campos acessíveis com erros)
+    app/                 # navegação, cabeçalho de página, seletor de data, estados vazios
+    charts/              # gráfico de série temporal (Recharts), período, tendência
+    forms/               # campos acessíveis, busca com resultados (SearchPicker)
+    nutrition/           # tabela nutricional com totais parciais
     ui/                  # componentes shadcn/ui
   lib/
     auth/                # sessão (DAL), schemas Zod, rotas públicas e redirect seguro
-    supabase/            # clients do Supabase (server e proxy)
-    validation/          # decimal pt-BR ("8,2" → 8.2) para Zod
-    env.ts               # validação das variáveis públicas
-    forms.ts             # estado padrão das Server Actions de formulário
+    data/                # acesso a dados (Supabase + RLS), sempre via authed()
+    nutrition/           # cálculo proporcional, receitas, snapshots e totais
+    training/            # estatísticas de séries, volume, comparação de períodos
+    tracking/            # média móvel de peso e média de água
+    validation/          # schemas Zod (decimal pt-BR, alimentos, refeições, treinos…)
+    dates.ts, period.ts  # datas de calendário, fuso e períodos
   proxy.ts               # renovação de sessão e proteção de rotas
 supabase/
   config.toml            # configuração do Supabase CLI (auth local, templates)
-  migrations/            # migrations SQL versionadas
+  migrations/            # migrations SQL versionadas (tabelas, RLS, funções save_*)
   templates/             # templates de e-mail (recuperação de senha)
+tests/db/                # testes de integração do banco (RLS e regras)
 docker-compose.yml       # banco Postgres local (porta 55432)
 ```
 
@@ -162,14 +184,12 @@ docker-compose.yml       # banco Postgres local (porta 55432)
 
 ## Testes
 
-`npm test` cobre hoje:
+| Suíte | Comando | O que cobre |
+|---|---|---|
+| Unitários | `npm test` | Cálculo proporcional (exemplos da especificação: melão 150 g, ovo mexido), conversão por peso de unidade, totais parciais, snapshots de refeição, receitas por porção, volume/maior carga/aquecimento, comparação de períodos (mínimo de 2 sessões), média móvel de peso, datas por fuso, períodos, decimais pt-BR e validações Zod |
+| Banco | `npm run test:db` | RLS em todas as tabelas (outro usuário não lê, altera, exclui nem referencia), acesso anônimo bloqueado, chaves compostas, checks, exclusão restrita de itens em uso, atomicidade de `save_meal`/`save_recipe`/`save_workout` e preservação de snapshots |
 
-- conversão de decimais em pt-BR (`8,2`, `1.234,5`), com vazio = `null` (“não cadastrado”) diferente de zero;
-- schemas de login e senha (mensagens em português);
-- rotas públicas e bloqueio de *open redirect*;
-- leitura segura de campos de formulário.
-
-Os próximos módulos devem incluir testes para cálculo proporcional de nutrientes, receitas, volume de treino, médias móveis e testes de RLS (tentativas de acessar dados de outro usuário).
+Além disso, a V1 foi validada de ponta a ponta contra um Supabase local (Auth + API): login, Server Actions e páginas de todos os módulos, e um roteiro em navegador headless com viewport de celular (formulários, busca, editores, gráficos, ausência de rolagem horizontal e de erros de JavaScript).
 
 ## Segurança
 
@@ -192,4 +212,4 @@ ORMs como o Prisma conectam com o usuário `postgres`, que **ignora o RLS**. O i
 | 5. Refeições do dia e totais nutricionais | ✅ Concluída |
 | 6. Exercícios, treinos e séries | ✅ Concluída |
 | 7. Relatórios e gráficos de evolução de treino | ✅ Concluída |
-| 8. Revisão mobile, validações, mensagens de erro e estados vazios | Pendente |
+| 8. Revisão mobile, validações, mensagens de erro e estados vazios | ✅ Concluída |

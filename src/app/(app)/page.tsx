@@ -15,7 +15,7 @@ import { workoutVolume } from "@/lib/training/stats";
 import { sumNutrition } from "@/lib/nutrition/calc";
 import { NutritionLine } from "@/components/nutrition/nutrition-facts";
 import { formatDate, formatDateLong } from "@/lib/dates";
-import { formatKg } from "@/lib/format";
+import { capitalizeFirst, formatKg } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Hoje" };
 
@@ -48,7 +48,7 @@ async function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Hoje" description={<span className="capitalize">{formatDateLong(today)}</span>} />
+      <PageHeader title="Hoje" description={capitalizeFirst(formatDateLong(today))} />
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
