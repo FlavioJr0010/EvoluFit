@@ -6,12 +6,14 @@ import { PageHeader } from "@/components/app/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listCheckins } from "@/lib/data/checkins";
 import { listMealsInRange } from "@/lib/data/meals";
+import { listWorkouts } from "@/lib/data/workouts";
 import { getToday } from "@/lib/data/context";
 import { param } from "@/lib/data/search-params";
 import { addDays } from "@/lib/dates";
-import { resolvePeriod } from "@/lib/period";
+import { previousRange, resolvePeriod } from "@/lib/period";
 
 import { FoodSection } from "./food-section";
+import { TrainingSection } from "./training-section";
 import { WaterSection, WeightSection } from "./weight-section";
 
 export const metadata: Metadata = { title: "Evolução" };
@@ -35,9 +37,11 @@ async function EvolutionContent({ searchParams }: Pick<PageProps<"/evolucao">, "
     today,
   );
   // 6 dias antes do período para a janela da média móvel
-  const [checkins, meals] = await Promise.all([
+  const previous = previousRange(period.range);
+  const [checkins, meals, workouts] = await Promise.all([
     listCheckins({ from: addDays(period.range.from, -6), to: period.range.to }),
     listMealsInRange(period.range),
+    listWorkouts({ range: { from: previous.from, to: period.range.to }, limit: 1000 }),
   ]);
 
   return (
@@ -47,6 +51,7 @@ async function EvolutionContent({ searchParams }: Pick<PageProps<"/evolucao">, "
         <WeightSection checkins={checkins} range={period.range} />
         <WaterSection checkins={checkins} range={period.range} />
         <FoodSection meals={meals} range={period.range} />
+        <TrainingSection workouts={workouts} range={period.range} previous={previous} />
       </div>
     </>
   );
