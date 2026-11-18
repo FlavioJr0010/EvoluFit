@@ -31,7 +31,11 @@ function isActive(pathname: string, href: string) {
 
 /** Navegação inferior (celular). */
 export function BottomNav() {
-  const pathname = usePathname();
+  return <BottomNavLinks pathname={usePathname()} />;
+}
+
+/** Sem destaque do item ativo: usado como fallback estático (Suspense). */
+export function BottomNavLinks({ pathname }: { pathname: string | null }) {
   return (
     <nav
       aria-label="Navegação principal"
@@ -39,7 +43,7 @@ export function BottomNav() {
     >
       <ul className="mx-auto grid max-w-md grid-cols-5">
         {MAIN.map(({ href, label, icon: Icon }) => {
-          const active = isActive(pathname, href);
+          const active = pathname != null && isActive(pathname, href);
           return (
             <li key={href}>
               <Link
@@ -63,13 +67,16 @@ export function BottomNav() {
 
 /** Navegação no cabeçalho (desktop). */
 export function TopNav() {
-  const pathname = usePathname();
+  return <TopNavLinks pathname={usePathname()} />;
+}
+
+export function TopNavLinks({ pathname }: { pathname: string | null }) {
   const items = [...MAIN.filter((i) => i.href !== "/mais"), ...SECONDARY];
   return (
     <nav aria-label="Navegação principal" className="hidden md:block">
       <ul className="flex items-center gap-1">
         {items.map(({ href, label }) => {
-          const active = isActive(pathname, href);
+          const active = pathname != null && isActive(pathname, href);
           return (
             <li key={href}>
               <Link

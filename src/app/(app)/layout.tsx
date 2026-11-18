@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { BottomNav, TopNav } from "@/components/app/nav";
+import { BottomNav, BottomNavLinks, TopNav, TopNavLinks } from "@/components/app/nav";
 
 import { UserMenu } from "./user-menu";
 
@@ -13,7 +13,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           <Link href="/" className="font-semibold tracking-tight">
             EvoluFit
           </Link>
-          <TopNav />
+          <Suspense fallback={<TopNavLinks pathname={null} />}>
+            <TopNav />
+          </Suspense>
           <div className="ml-auto">
             <Suspense fallback={null}>
               <UserMenu />
@@ -22,7 +24,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-24 md:pb-10">{children}</main>
-      <BottomNav />
+      <Suspense fallback={<BottomNavLinks pathname={null} />}>
+        <BottomNav />
+      </Suspense>
     </div>
   );
 }
